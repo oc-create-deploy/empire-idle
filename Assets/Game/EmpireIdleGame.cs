@@ -57,14 +57,19 @@ public sealed class EmpireIdleGame : MonoBehaviour
 
     private void OnGUI()
     {
-        float scale = Mathf.Min(Screen.width / 430f, Screen.height / 932f);
+        Rect safe = Screen.safeArea;
+        float factor = Mathf.Min(safe.width / 430f, safe.height / 932f);
+        Matrix4x4 previousMatrix = GUI.matrix;
+        GUI.matrix = Matrix4x4.TRS(new Vector3(safe.x + (safe.width - 430f * factor) / 2f,
+            Screen.height - safe.yMax + (safe.height - 932f * factor) / 2f, 0), Quaternion.identity, new Vector3(factor, factor, 1));
+        float scale = 1f;
         InitStyles(scale);
         float width = 390f * scale;
-        float left = (Screen.width - width) * 0.5f;
+        float left = (430f - width) * 0.5f;
 
         Color old = GUI.color;
         GUI.color = new Color(0.03f, 0.08f, 0.18f);
-        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+        GUI.DrawTexture(new Rect(0, 0, 430, 932), Texture2D.whiteTexture);
         GUI.color = old;
 
         GUI.Label(new Rect(left, 42 * scale, width, 70 * scale), "EMPIRE IDLE", titleStyle);
@@ -74,13 +79,13 @@ public sealed class EmpireIdleGame : MonoBehaviour
         DrawCard(left, 225 * scale, width, 155 * scale, "WORKFORCE", workers, WorkerCost(), "Hire worker", () =>
         {
             double cost = WorkerCost();
-            if (coins >= cost) { coins -= cost; workers++; }
+            if (coins >= cost) { coins -= cost; workers++; Save(); }
         });
 
         DrawCard(left, 405 * scale, width, 155 * scale, "FACTORIES", factories, FactoryCost(), "Build factory", () =>
         {
             double cost = FactoryCost();
-            if (coins >= cost) { coins -= cost; factories++; }
+            if (coins >= cost) { coins -= cost; factories++; Save(); }
         });
 
         if (GUI.Button(new Rect(left, 590 * scale, width, 92 * scale), "COLLECT  +" + Format(10 + factories * 4), buttonStyle))
@@ -98,7 +103,10 @@ public sealed class EmpireIdleGame : MonoBehaviour
             Save();
         }
         GUI.enabled = true;
+        GUI.matrix = previousMatrix;
     }
+
+    private void OnApplicationQuit() { Save(); }
 
     private void DrawCard(float x, float y, float width, float height, string label, int count, double cost, string action, System.Action onClick)
     {
