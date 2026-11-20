@@ -89,7 +89,10 @@ public sealed class EmpireIdleGame : MonoBehaviour
         });
 
         if (GUI.Button(new Rect(left, 590 * scale, width, 92 * scale), "COLLECT  +" + Format(10 + factories * 4), buttonStyle))
+        {
             coins += 10 + factories * 4;
+            Save();
+        }
 
         double prestigeCost = 2500.0 * (prestige + 1) * (prestige + 1);
         GUI.Label(new Rect(left, 710 * scale, width, 40 * scale), "Prestige " + prestige + "  •  next at $" + Format(prestigeCost), bodyStyle);
