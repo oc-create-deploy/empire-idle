@@ -84,6 +84,8 @@ capture('03-restored')
 while number('coins')<2500:press(215,636)
 capture('04-earned-expansion')
 p=number('prestige');press(215,795)
+deadline=time.time()+8
+while number('prestige')==p and time.time()<deadline:time.sleep(.4)
 assert number('prestige')==p+1 and number('workers')==1 and number('factories')==1,'Prestige reset failed'
 restart();assert number('prestige')==p+1,'Prestige persistence failed'
 capture('05-expanded-restored')
